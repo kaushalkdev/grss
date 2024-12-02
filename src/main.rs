@@ -10,5 +10,12 @@ struct Cli {
 
 fn main() {
     let args = Cli::parse();
-    println!("pattern: {:?}  {:?}", args.pattern, args.path);
+    let content = std::fs::read_to_string(&args.path)
+        .expect("\n ===========> INCORRECT FILE FORMAT <==========\n");
+
+    for line in content.lines() {
+        if line.contains(&args.pattern) {
+            println!("{}", line);
+        }
+    }
 }
