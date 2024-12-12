@@ -17,10 +17,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
     let counter = 5;
     trace!("Some random trace value");
-    debug!("Debugging values");
+
     info!("Starting counter with value {}", counter);
     warn!("Some random warning");
-    error!("Some random error");
 
     let pb = indicatif::ProgressBar::new(counter);
 
@@ -36,10 +35,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let content = std::fs::read_to_string(&args.path)
         .with_context(|| format!("Could not read file `{}`", args.path.display()));
-    for line in content?.lines() {
-        if line.contains(&args.pattern) {
-            println!("{}", line);
+    find_matches(&content?, &args.pattern, std::io::stdout());
+    Ok(())
+}
+
+fn find_matches(content: &str, pattern: &str, mut writer: impl std::io::Write) {
+    debug!("in find matches fn");
+    for line in content.lines() {
+        if line.contains(pattern) {
+            let result = writeln!(writer, "{}", line);
+
+            match result {
+                Ok(_) => {
+                    debug!("Write success full")
+                }
+                Err(error) => {
+                    error!("Failed to write : {error:?}")
+                }
+            }
         }
     }
-    Ok(())
+    debug!("find matches complete");
+}
+
+#[test]
+fn test_find_match() {
+    let mut res_vec = Vec::new();
+    find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut res_vec);
+    assert_eq!(res_vec, b"lorem ipsum\n");
 }
