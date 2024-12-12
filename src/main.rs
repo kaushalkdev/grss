@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use clap::Parser;
+use log::{debug, error, info, trace, warn};
 use std::thread;
 use std::time::Duration;
 
@@ -12,8 +13,14 @@ struct Cli {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
     let args = Cli::parse();
     let counter = 5;
+    trace!("Some random trace value");
+    debug!("Debugging values");
+    info!("Starting counter with value {}", counter);
+    warn!("Some random warning");
+    error!("Some random error");
 
     let pb = indicatif::ProgressBar::new(counter);
 
